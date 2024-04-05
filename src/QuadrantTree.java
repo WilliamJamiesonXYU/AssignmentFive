@@ -10,15 +10,12 @@ public class QuadrantTree {
             root = new QTreeNode();
             root.setColor(Gui.averageColor(thePixels, 0, 0, thePixels.length));
             root.setSize(thePixels.length);
-            buildTree(root, thePixels.length, thePixels, 0);
+            buildTree(root, thePixels);
         }
     }
 
     private void buildTree (QTreeNode parent, int[][] thePixels) {
         //Base case: No children to be made
-        if (parent.getSize() == 1) {
-            return;
-        }
         for (int i = 0; i < 4; i++) {
             int subQuadrantSize = parent.getSize() / 2;
             int childX;
@@ -55,59 +52,7 @@ public class QuadrantTree {
             parent.setChild(child, i);
 
         }
-//
-//        // Base case: root node
-//        if (this.root == null) {
-//            if (quadrantSize == 1) {
-//                this.root = new QTreeNode(null, 0, 0, quadrantSize, Gui.averageColor(quadrantPixels, 0, 0, quadrantSize));
-//                return;
-//            }
-//            else {
-//                this.root = new QTreeNode();
-//                this.root.setColor(Gui.averageColor(quadrantPixels, 0, 0, quadrantSize));
-//                this.root.setSize(quadrantSize);
-//                for (int i = 0; i < 4; i++) {
-//                    buildTree(root, quadrantSize, quadrantPixels, i);
-//                }
-//            }
-//        }
-//
-//        int[][] subQuadrantPixels = new int[quadrantSize][quadrantSize];
-//        quadrantSize /= 2;
-//
-//        QTreeNode child = new QTreeNode();
-//        // Set proper x and y depending on which subquadrant the child should represent
-//        if (quadrantPos == 0) {
-//            child.setx(parent.getx());
-//            child.sety(parent.gety());
-//
-//        }
-//        else if (quadrantPos == 1) {
-//            child.setx(parent.getx() + quadrantSize);
-//            child.sety(parent.gety());
-//        }
-//        else if (quadrantPos == 2) {
-//            child.setx(parent.getx());
-//            child.sety(parent.gety() + quadrantSize);
-//        }
-//        else {
-//            child.setx(parent.getx() + quadrantSize);
-//            child.sety(parent.gety() + quadrantSize);
-//        }
-//        // Calculate the subquadrant's pixels
-//        for (int j = 0; j < quadrantSize; j++) {
-//            for (int h = 0; h < quadrantSize; h++) {
-//                subQuadrantPixels[j][h] = quadrantPixels[child.getx() + j][child.gety() + h];
-//            }
-//        }
-//        child.setColor(Gui.averageColor(subQuadrantPixels, child.getx(), child.gety(), quadrantSize));
-//        if (quadrantSize != 1) {
-//            for (int i = 0; i < 4; i++) {
-//                buildTree(child, quadrantSize, subQuadrantPixels, quadrantPos);
-//            }
-//
-//        }
-//        parent.setChild(child, quadrantPos);
+
     }
 
     public QTreeNode getRoot() {
@@ -115,7 +60,20 @@ public class QuadrantTree {
     }
 
     public ListNode<QTreeNode> getPixels(QTreeNode r, int theLevel) {
+        // Base case: theLevel = 0 or we're at a leaf node:
+        if (theLevel == 0 || r.isLeaf()) {
+            return new ListNode<>(r);
+        }
+        ListNode<QTreeNode> resultantList = null;
+        for (int i = 0; i < 4; i++) {
+            ListNode<QTreeNode> pixelNodes = getPixels(r.getChild(i), theLevel - 1); // Decrement theLevel for the next recursion
 
+            if (resultantList == null) {
+                resultantList = pixelNodes; // Assign the result list to the first non-null list node
+            } else {
+                resultantList.setNext(pixelNodes); // Concatenate the result list of the current child to the overall result list
+            }
+        }
     }
 
 }
