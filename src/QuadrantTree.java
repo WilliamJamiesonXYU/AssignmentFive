@@ -60,6 +60,51 @@ public class QuadrantTree {
     }
 
     public ListNode<QTreeNode> getPixels(QTreeNode r, int theLevel) {
+        // If the current node is null, return null (to avoid adding null entries in the list).
+        if (r == null) {
+            return null;
+        }
+        // Base case: if we are at the target level, or the node is a leaf, return it in a new list.
+        if (theLevel == 0 || r.isLeaf()) {
+            return new ListNode<>(r);
+        } else {
+            // Initialize an empty list to hold the results.
+            ListNode<QTreeNode> resultList = null;
+            // Recursive case: Traverse the tree and concatenate lists from child nodes.
+            for (int i = 0; i < 4; i++) { // Assuming each node has up to 4 children
+                try {
+                    QTreeNode child = r.getChild(i);
+                    if (child != null) {
+                        ListNode<QTreeNode> childList = getPixels(child, theLevel - 1);
+                        resultList = concatenate(resultList, childList); // Concatenate the lists.
+                    }
+                } catch (QTreeException e) {
+                    System.err.println("Invalid child index: " + e.getMessage());
+                }
+            }
+            return resultList;
+        }
+    }
+
+    private ListNode<QTreeNode> concatenate(ListNode<QTreeNode> list1, ListNode<QTreeNode> list2) {
+        if (list1 == null) {
+            return list2;
+        }
+        if (list2 == null) {
+            return list1;
+        }
+
+        ListNode<QTreeNode> current = list1;
+        // Find the last node of the first list
+        while (current.getNext() != null) {
+            current = current.getNext();
+        }
+        // Append the second list to the first
+        current.setNext(list2);
+        return list1;
+    }
+
+    /*public ListNode<QTreeNode> getPixels(QTreeNode r, int theLevel) {
         // Base case: theLevel = 0 or we're at a leaf node:
         if (theLevel == 0 || r.isLeaf()) {
             return new ListNode<>(r);
@@ -74,6 +119,43 @@ public class QuadrantTree {
                 resultantList.setNext(pixelNodes); // Concatenate the result list of the current child to the overall result list
             }
         }
+    }*/
+
+    public Duple findMatching (QTreeNode r, int theColor, int theLevel) {
+
+    }
+
+    /**
+     * Finds a node at a specified level representing a quadrant containing the specified point.
+     *
+     * @param r The current node (root for the initial call).
+     * @param theLevel The level at which to search for the node.
+     * @param x The x-coordinate of the point.
+     * @param y The y-coordinate of the point.
+     * @return The node representing the quadrant containing the point at the specified level, or null if not found.
+     */
+    public QTreeNode findNode(QTreeNode r, int theLevel, int x, int y) {
+        if (r == null || !r.contains(x, y)) {
+            return null;
+        }
+        if (theLevel == 0 || r.isLeaf()) {
+            return r;
+        } else {
+            for (int i = 0; i < 4; i++) {
+                try {
+                    QTreeNode child = r.getChild(i);
+                    if (child != null && child.contains(x, y)) {
+                        QTreeNode result = findNode(child, theLevel - 1, x, y);
+                        if (result != null) {
+                            return result;
+                        }
+                    }
+                } catch (QTreeException e) {
+                    System.err.println("Invalid child index: " + e.getMessage());
+                }
+            }
+        }
+        return null; // If the point is contained but not found at the specified level.
     }
 
 }
